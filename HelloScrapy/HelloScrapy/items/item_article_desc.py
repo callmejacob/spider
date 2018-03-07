@@ -6,6 +6,7 @@ from item_base import *
 
 class ArticleDescItem(BaseItem):
 	item_type = scrapy.Field()
+	topic = scrapy.Field()
 	author = scrapy.Field()
 	time = scrapy.Field()
 	title = scrapy.Field()
@@ -17,6 +18,7 @@ class ArticleDescItem(BaseItem):
 
 	def getTableSql(self):
 		return "CREATE TABLE `article_desc` (" \
+			"  `topic` varchar(256) NOT NULL," \
 			"  `title` varchar(256) NOT NULL," \
 			"  `author` varchar(128) NOT NULL," \
 			"  `time` varchar(128) NOT NULL," \
@@ -25,12 +27,12 @@ class ArticleDescItem(BaseItem):
 			"  `read_num` varchar(32) NOT NULL," \
 			"  `reply_num` varchar(32) NOT NULL," \
 			"  `favor_num` varchar(32) NOT NULL," \
-			"  PRIMARY KEY (`title`)" \
+			"  PRIMARY KEY (`topic`, `title`)" \
 			") ENGINE=InnoDB"
 
 
 	def getInsertSql(self):
 		return "INSERT INTO article_desc " \
-              "(title, author, time, link, abstract, read_num, reply_num, favor_num) " \
-              "VALUES (%(title)s, %(author)s, %(time)s, %(link)s, %(abstract)s, %(read_num)s, %(reply_num)s, %(favor_num)s)"
+              "(topic, title, author, time, link, abstract, read_num, reply_num, favor_num) " \
+              "VALUES (%(topic)s, %(title)s, %(author)s, %(time)s, %(link)s, %(abstract)s, %(read_num)s, %(reply_num)s, %(favor_num)s)"
 

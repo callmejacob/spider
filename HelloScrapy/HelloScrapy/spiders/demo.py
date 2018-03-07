@@ -6,6 +6,8 @@ from HelloScrapy.items import *
 
 from urlparse import urljoin
 
+root_url = 'http://www.jianshu.com'
+
 class DemoScrapy(scrapy.Spider):
 	name = 'demo'
 	allowed_domains = ['jianshu.com']
@@ -24,8 +26,19 @@ class DemoScrapy(scrapy.Spider):
 		print '###' * 10
 
 		if cur_url.startswith('https://www.jianshu.com/u'):
-			name = response.xpath('//body/div/div/div/div/div/a/text()')[0].extract()
-			user_sel = response.xpath('//body/div/div/div/div/div/ul/li/div/p/text()')
+			main_top_sel = response.xpath("//body/div/div/div/div[@class='main-top']")
+			user_link = main_top_sel.xpath("a[@class='avatar']/@href").extract()[0]
+			user_link = urljoin(root_url, user_link)
+			head_url = main_top_sel.xpath("a[@class='avatar']/img/@src").extract()[0]
+			head_url = head_url[2:]
+			mail_link = main_top_sel.xpath("a/@href")[1].extract()
+			mail_link = urljoin(root_url, mail_link)
+			user_name = main_top_sel.xpath("div[@class='title']/a/text()").extract()[0]
+			follow_num = main_top_sel.xpath("div[@class='info']/ul/li/div/a/p/text()").extract()[0]
+			follower_num = main_top_sel.xpath("div[@class='info']/ul/li/div/a/p/text()").extract()[1]
+			page_num = main_top_sel.xpath("div[@class='info']/ul/li/div/a/p/text()").extract()[2]
+			words_num = main_top_sel.xpath("div[@class='info']/ul/li/div/p/text()").extract()[0]
+			favored_num = main_top_sel.xpath("div[@class='info']/ul/li/div/p/text()").extract()[1]
 
 			for page_sel in response.xpath('//body/div/div/div/div/ul/li'):
 				name = page_sel.xpath('div/a/text()').extract()[0]
@@ -50,10 +63,16 @@ class DemoScrapy(scrapy.Spider):
 
 
 			item = AuthorItem()
-			item['item_type'] = 'author'
-			item['name']      = name
-			item['text_num']  = int(user_sel[0].extract())
-			item['favor_num'] = int(user_sel[1].extract())
+			item['item_type']    = 'author'
+			item['user_name']    = user_name
+			item['user_link']    = user_link
+			item['head_url']     = head_url
+			item['mail_link']    = mail_link
+			item['follow_num']   = int(follow_num)
+			item['follower_num'] = int(follower_num)
+			item['page_num']     = int(page_num)
+			item['words_num']    = int(words_num)
+			item['favored_num']  = int(favored_num)
 			yield item
 		elif cur_url.startswith('https://www.jianshu.com/p'):
 			article_sel = response.xpath('//body/div[@class="note"]/div[@class="post"]/div[@class="article"]')
@@ -88,7 +107,7 @@ class DemoScrapy(scrapy.Spider):
 		elif cur_url.startswith('https://www.jianshu.com/c'):
 			if not '?' in cur_url:
 				# 最新收录文章
-				for i in range(200):
+				for i in range(2):
 					page_url = '%s?order_by=added_at&page=%d' % (cur_url, i)
 					yield scrapy.Request(url=page_url, callback=self.parse)
 			else:
@@ -131,6 +150,7 @@ class DemoScrapy(scrapy.Spider):
 
 					item = ArticleDescItem()
 					item['item_type'] = 'article_desc'
+					item['topic'] = c_title
 					item['author'] = author
 					item['time'] = time
 					item['title'] = title

@@ -16,7 +16,7 @@ NEWSPIDER_MODULE = 'HelloScrapy.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'HelloMyBaby'
+USER_AGENT = 'Hello20180307'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
